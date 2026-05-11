@@ -5,6 +5,35 @@
 //    Depois: ServicoCobranca cuida exclusivamente do
 //            faturamento. Cada gerador cuida só do seu tipo.
 // ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+// 2. DIP — Dependency Inversion Principle
+//    Antes: registrarCobranca() instanciava SistemaCobrancaStripe
+//           diretamente, impossibilitando troca de gateway.
+//    Depois: ServicoCobranca depende de IGatewayPagamento
+//            (abstração) injetada pelo chamador.
+// ─────────────────────────────────────────────────────────────
+ 
+interface IGatewayPagamento {
+  cobrar(usuarioId: string, valor: number): void;
+}
+ 
+class GatewayStripe implements IGatewayPagamento {
+  cobrar(usuarioId: string, valor: number): void {
+    console.log(`[Stripe] Cobrando R$${valor} do usuário ${usuarioId}`);
+  }
+}
+ 
+class GatewayPayPal implements IGatewayPagamento {
+  cobrar(usuarioId: string, valor: number): void {
+    console.log(`[PayPal] Cobrando R$${valor} do usuário ${usuarioId}`);
+  }
+}
+ 
+class GatewayPix implements IGatewayPagamento {
+  cobrar(usuarioId: string, valor: number): void {
+    console.log(`[Pix] Cobrando R$${valor} do usuário ${usuarioId}`);
+  }
+}
 class ServicoCobranca {
   constructor(private readonly gateway: IGatewayPagamento) {}
 
