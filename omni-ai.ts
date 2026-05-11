@@ -41,3 +41,28 @@ class ServicoCobranca {
     this.gateway.cobrar(usuarioId, valor);
   }
 }
+
+// ─────────────────────────────────────────────────────────────
+// 3. ISP — Interface Segregation Principle
+//    Antes: IModelosIA obrigava toda IA a implementar texto,
+//           imagem e áudio — mesmo sem suportar todos.
+//    Depois: interfaces menores e coesas; cada modelo implementa
+//            apenas o que realmente oferece.
+// ─────────────────────────────────────────────────────────────
+ 
+interface IGeradorTexto {
+  gerarTexto(prompt: string): string;
+}
+ 
+interface IGeradorImagem {
+  gerarImagem(prompt: string): string;
+}
+ 
+interface IGeradorAudio {
+  gerarAudio(prompt: string): string;
+}
+ 
+interface IGeradorVideo {
+  gerarVideo(prompt: string): string;
+}
+ 
