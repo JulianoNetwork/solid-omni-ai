@@ -66,3 +66,54 @@ interface IGeradorVideo {
   gerarVideo(prompt: string): string;
 }
  
+// ─────────────────────────────────────────────────────────────
+// 4. LSP — Liskov Substitution Principle
+//    Antes: ModeloFocadoEmTexto herdava AssistenteOmniIA e
+//           lançava exceções em gerarImagem() e gerarAudio(),
+//           quebrando qualquer código que esperasse o contrato
+//           da classe pai.
+//    Depois: cada modelo implementa apenas as interfaces que
+//            pode cumprir — nenhuma subclasse promete o que
+//            não entrega.
+// ─────────────────────────────────────────────────────────────
+ 
+/** Modelo especializado em texto — não promete imagem nem áudio. */
+class ModeloChatGPT implements IGeradorTexto {
+  gerarTexto(prompt: string): string {
+    return `[ChatGPT-4] Texto gerado para: ${prompt}`;
+  }
+}
+ 
+/** Modelo especializado em imagem. */
+class ModeloDallE implements IGeradorImagem {
+  gerarImagem(prompt: string): string {
+    return `[DALL-E] URL da imagem gerada para: ${prompt}`;
+  }
+}
+ 
+/** Modelo especializado em áudio. */
+class ModeloWhisper implements IGeradorAudio {
+  gerarAudio(prompt: string): string {
+    return `[Whisper] Arquivo de áudio gerado para: ${prompt}`;
+  }
+}
+ 
+/** Modelo especializado em vídeo — adicionado sem tocar em nada existente. */
+class ModeloSora implements IGeradorVideo {
+  gerarVideo(prompt: string): string {
+    return `[Sora] URL do vídeo gerado para: ${prompt}`;
+  }
+}
+ 
+/** Modelo multimodal que cumpre todos os contratos que assina. */
+class ModeloGeminiUltra implements IGeradorTexto, IGeradorImagem, IGeradorAudio {
+  gerarTexto(prompt: string): string {
+    return `[Gemini Ultra] Texto gerado para: ${prompt}`;
+  }
+  gerarImagem(prompt: string): string {
+    return `[Gemini Ultra] Imagem gerada para: ${prompt}`;
+  }
+  gerarAudio(prompt: string): string {
+    return `[Gemini Ultra] Áudio gerado para: ${prompt}`;
+  }
+}
