@@ -117,3 +117,58 @@ class ModeloGeminiUltra implements IGeradorTexto, IGeradorImagem, IGeradorAudio 
     return `[Gemini Ultra] Áudio gerado para: ${prompt}`;
   }
 }
+
+// ─────────────────────────────────────────────────────────────
+// 5. OCP — Open/Closed Principle
+//    Antes: processarRequisicaoUsuario() usava if/else para
+//           cada tipo, exigindo modificação a cada novo modelo.
+//    Depois: ProcessadorRequisicao recebe qualquer gerador que
+//            implemente a interface correta. Adicionar vídeo
+//            (ModeloSora) não toca em nenhuma linha existente.
+// ─────────────────────────────────────────────────────────────
+ 
+type TipoGerador =
+  | IGeradorTexto
+  | IGeradorImagem
+  | IGeradorAudio
+  | IGeradorVideo;
+ 
+/**
+ * Orquestra a requisição sem conhecer os detalhes de cada modelo.
+ * Aberto para extensão (novos geradores), fechado para modificação.
+ */
+class ProcessadorRequisicao {
+  constructor(private readonly cobranca: ServicoCobranca) {}
+ 
+  processar(usuarioId: string, prompt: string, gerador: TipoGerador): void {
+    console.log(`\nProcessando requisição do usuário ${usuarioId}...`);
+ 
+    let resultado: string | undefined;
+ 
+    if ("gerarTexto" in gerador) resultado = gerador.gerarTexto(prompt);
+    else if ("gerarImagem" in gerador) resultado = gerador.gerarImagem(prompt);
+    else if ("gerarAudio" in gerador) resultado = gerador.gerarAudio(prompt);
+    else if ("gerarVideo" in gerador) resultado = gerador.gerarVideo(prompt);
+ 
+    console.log(resultado);
+    this.cobranca.registrar(usuarioId, 1.50);
+  }
+}
+ 
+// ─────────────────────────────────────────────────────────────
+// Exemplo de uso — compõe as dependências pelo chamador
+// ─────────────────────────────────────────────────────────────
+ 
+const cobrancaStripe = new ServicoCobranca(new GatewayStripe());
+const processador = new ProcessadorRequisicao(cobrancaStripe);
+ 
+processador.processar("user_001", "Explique SOLID", new ModeloChatGPT());
+processador.processar("user_002", "Gato astronauta", new ModeloDallE());
+processador.processar("user_003", "Leia este texto", new ModeloWhisper());
+processador.processar("user_004", "Cachorro surfando", new ModeloSora());
+ 
+// Troca de gateway sem alterar ProcessadorRequisicao:
+const cobrancaPix = new ServicoCobranca(new GatewayPix());
+const processadorPix = new ProcessadorRequisicao(cobrancaPix);
+processador.processar("user_005", "Resuma este artigo", new ModeloGeminiUltra());
+ 
